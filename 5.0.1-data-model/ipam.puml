@@ -1,0 +1,94 @@
+@startuml
+package Config_DataModel\n[schema/vnc_cfg.xsd] {
+
+    class config_root << (I, #FF7700) Identity>> {
+    }
+
+    class domain << (I, #FF7700) Identity>> {
+    }
+
+    class project << (I, #FF7700) Identity>> {
+    }
+    note right
+    default project
+    end note
+
+    class global_system_config << (I, #FF7700) Identity>> {
+    }
+
+    class fabric << (I, #FF7700) Identity>> {
+    }
+
+    class instance_ip << (I, #FF7700) Identity>> {
+    }
+
+    class network_ipam << (I, #FF7700) Identity>> {
+        - mgmt: IpamType
+          - ipam-method: IpamMethodType
+          - ipam-dns-method: IpamDnsMethodType
+          - ipam-dns-server: IpamDnsAddressType
+          - dhcp-option-list: DhcpOptionsListType
+          - cidr-block: SubnetType
+          - host-routes: RouteTableType
+        - subnets: list<IpamSubnetType>
+          - subnet: SubnetType
+          - default_gateway: IpAddressType
+          - dns-server-address: IpAddressType
+          - subnet-uuid: String
+          - enable-dhcp: xsd:boolean
+          - dns-nameservers: String
+          - allocation-pools: AllocationPoolType
+          - addr_from_start: Boolean
+          - dhcp-option-list: DhcpOptionsListType
+          - host-routes: RouteTableType
+          - subnet-name: String
+          - alloc-unit: integer
+          - created: xsd:dateTime
+          - last-modified: xsd:dateTime
+        - ipam-subnet-method: enum {
+            user-defined-subnet
+            flat-subnet
+            auto-subnet }
+    }
+
+    class physical_router << (I, #FF7700) Identity>> {
+    }
+
+    class physical_interface << (I, #FF7700) Identity>> {
+    }
+
+    class logical_interface << (I, #FF7700) Identity>> {
+    }
+
+
+config_root *-- global_system_config
+config_root *- domain
+domain *-- project
+project *-- network_ipam
+global_system_config "1 " *-- "n " fabric
+
+network_ipam <- instance_ip
+fabric -> network_ipam
+note on link
+<b>Two IPAM objects for fabric:
+ - one for the mgmt network
+    (used to configure dhcp
+    server for ZTP)
+ - one for the ip fabric
+    (used to assign interface
+    IPs for the fabric links)
+end note
+
+fabric --> physical_router
+physical_router *- physical_interface
+physical_interface *- logical_interface
+
+instance_ip --> logical_interface: assigned to
+
+
+'global_system_config *--- virtual_router
+'virtual_router --> network_ipam
+
+}
+
+@enduml

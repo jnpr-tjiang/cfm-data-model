@@ -1,0 +1,108 @@
+@startuml
+package Config_DataModel\n[schema/vnc_cfg.xsd] {
+
+    class global_system_config << (I, #FF7700) Identity>> {
+        - autonomous_system: AutonomousSystemType
+        - config_version: String
+        - graceful_restart_parameters: GracefulRestartParametersType
+        - plugin_tuning: PluginProperties
+        - ibgp_auto_mesh: Boolean
+        - bgp_always_compare_med: Boolean
+        - rd_cluster_seed: RdClusterSeedType
+        - ip_fabric_subnets: SubnetListType
+        - bgpaas_parameters: BGPaaServiceParametersType
+        - <b>supported_device_families: DeviceFamilyListType</b>
+        - <b>supported_fabric_annotations: KeyValuePairs</b>
+    }
+
+    class fabric << (I, #FF7700) Identity>> {
+        - <b>annotations: Map<String, String>
+        - <b>credentials: List<DeviceCredential>
+        - <b>fabric_protocol: enum { ebgp }
+'        - <b>enforce_symmetry: Boolean
+    }
+
+    class network_ipam << (I, #FF7700) Identity>> {
+    }
+
+    class physical_router << (I, #FF7700) Identity>> {
+        - vendor_name: String
+        - product_name: String
+        - role: PhysicalRouterRole
+        - <b>rb_role: List<RoutingBridgingRole>
+        - <b>device_family: String</b>
+        - <b>serial_num: String</b>
+    }
+
+    class node_profile << (I, #FF7700) Identity>> #lightgreen {
+        - <b>vendor: String
+        - <b>device_family: String
+        - <b>hardware: List<HardwareType>
+        - <b>physical_router_roles: List<PhysicalRouterRole>
+        - <b>routing_bridging_roles: List<RoutingBridgingRole>
+    }
+
+    class HardwareType << (T, #FF7700) ComplexType >> #lightblue {
+      - <b>hardware_name: String
+      - <b>cards: Map<slot, CardType>
+    }
+
+    class CardType << (T, #FF7700) ComplexType >> #lightblue {
+        - <b>card_name: String
+        - <b>ports: Map<
+             <b>port_name,
+             <b>neighbor_node_profile>
+    }
+
+    class PhysicalRouterRole << (T, #FF7700) ComplexType >> #lightblue {
+        - enum { leaf, spine, <b>dci, <b>gateway}
+    }
+
+    class RoutingBridgingRole << (T, #FF7700) ComplexType >> #lightblue {
+        - <b>enum { crb, erb, rr }
+    }
+
+    class job_template << (I, #FF7700) Identity>> {
+        - <b>description: string
+        - <b>type: JobType
+        - <b>job_runtime: JobRuntimeType
+        - <b>input_schema: string
+        - <b>output_schema: string
+        - <b>playbooks: PlaybookInfoListType
+        - <b>multi_device_job: boolean
+    }
+
+    class role_config << (I, #FF7700) Identity>> #lightgreen {
+        - <b>role_name: String
+        - <b>config: JSON
+    }
+
+    global_system_config *-- fabric
+    global_system_config *-- job_template
+    global_system_config *-- physical_router
+
+    fabric "1" --> "n" physical_router
+    fabric "n  " --> "n  " node_profile: "                               "
+    physical_router -> node_profile
+
+    job_template <-- role_config
+    note on link
+    JSON config for the role must
+    conform to the input_schema of
+    the playbook
+    end note
+
+    node_profile "1" *- "n" role_config
+    node_profile .. HardwareType
+    node_profile .. PhysicalRouterRole: <capable of>
+    node_profile .. RoutingBridgingRole: <capable of>
+
+    HardwareType . CardType
+
+    physical_router .. PhysicalRouterRole:  "<assigned>"
+    physical_router .. RoutingBridgingRole:  "<assigned>"
+    network_ipam " 2     " <- "    1 "fabric
+
+
+}
+@enduml

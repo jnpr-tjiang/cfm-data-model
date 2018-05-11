@@ -1,0 +1,70 @@
+@startuml
+package Config_DataModel\n[schema/vnc_cfg.xsd] {
+    class global_system_config << (I, #FF7700) Identity>> {
+        - autonomous_system: AutonomousSystemType
+        - config_version: xsd_string
+        - graceful_restart_parameters: GracefulRestartParametersType
+        - plugin_tuning: PluginProperties
+        - bgp_always_compare_med: xsd_boolean
+        - rd_cluster_seed: RdClusterSeedType
+        - ip_fabric_subnets: SubnetListType
+        - bgpaas_parameters: BGPaaServiceParametersType
+        - <b>supported_device_families: List<String></b>
+    }
+
+    class fabric << (I, #FF7700) Identity>> {
+        - <b>annotations: Map<String, String>
+        - <b>credentials: List<DeviceCredential>
+        - <b>fabric_protocol: enum { ebgp }
+'        - <b>enforce_symmetry: Boolean
+    }
+
+    class DeviceCredential << (T, #FF7700) ComplexType >> #lightblue {
+        - <b>credential: UserCredentials
+        - <b>vendor: String
+        - <b>device_family: String
+    }
+
+    class UserCredentials << (T, #FF7700) ComplexType >> #lightblue {
+        - username: String
+        - password: String
+    }
+
+    class fabric_namespace << (I, #FF7700) Identity>> {
+        - <b>type: enum { IPV4_CIDR, MAC_ADDR, ASN }
+        - <b>value: NamespaceValue
+    }
+
+    class physical_router << (I, #FF7700) Identity>> {
+    }
+
+'    class NamespaceType << (S, #FF7700) String >> #lightgreen {
+'        <b>enum { IPV4_CIDR, MAC_ADDR, ASN }
+'
+'    }
+'
+    class NamespaceValue << (T, #FF7700) ComplexType >> #lightblue {
+        <b>choice
+            - <b>ipv4_cidr: String
+            - <b>mac_addr: List<String>
+            - <b>asn: number
+    }
+
+    class tag << (I, #FF7700) Identity>> {
+        - type_name: String
+        - value: String
+        - id: uint32
+    }
+
+    global_system_config *-- fabric
+    global_system_config *-- physical_router
+
+    fabric "1" -> "     n" physical_router
+    fabric "1" *-- "n"  fabric_namespace
+    DeviceCredential "n   " -* "   1" fabric: "          "
+    DeviceCredential *-- UserCredentials
+'    fabric_namespace *-- NamespaceType
+    fabric_namespace *-- NamespaceValue
+    fabric_namespace "n   " - "   n" tag
+}
+@enduml

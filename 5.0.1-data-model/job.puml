@@ -1,0 +1,66 @@
+@startuml
+'title <b>Phase 1: Support of basic EMS functionality via Playbook</b>
+package Config_DataModel\n[schema/vnc_cfg.xsd] {
+
+    class PlaybookInfoType << (T, #FF7700) ComplexType>> #lightblue {
+        - <b>playbook_uri: string
+        - <b>device_family: string
+    }
+
+    class PlaybookInfoListType << (T, #FF7700) ComplexType>> #lightblue {
+        - <b>playbook_info: List<PlaybookInfo>
+    }
+
+    class JobType << (T, #FF7700) String>> #lightgreen {
+        - <b>enum {device_job}
+    }
+
+    class JobRuntimeType << (T, #FF7700) String>> #lightgreen {
+        - <b>enum { ansible }
+    }
+
+    class job_template << (I, #FF7700) Identity>> {
+        - <b>description: string
+        - <b>type: JobType
+        - <b>job_runtime: JobRuntimeType
+        - <b>input_schema: string
+        - <b>output_schema: string
+        - <b>playbooks: PlaybookInfoListType
+        - <b>multi_device_job: boolean
+    }
+
+    PlaybookInfoListType -* job_template
+    job_template *-- JobRuntimeType
+    job_template *-- JobType
+    PlaybookInfoListType *-- PlaybookInfoType
+}
+
+package Operational_DataModel] {
+    class JobExecution << (S, #FF7700) Struct>> #lightblue {
+        - <b>job_id: string [key="ObjectJob"]
+        - <b>execution_id: string [key="JobExecution"]
+        - <b>start_time: long
+    }
+
+    class JobExecutionUVE << (U, #FF7700) uve>>  {
+        - <b>job_execution: JobExecution
+    }
+
+    class JobLog << (U, #FF7700) objectlog>>  {
+        - <b>job_template_id: string [key="JobTemplate"]
+        - <b>job_execution_id: string [key="JobExecution"]
+        - <b>timestamp: long
+        - <b>execution_status: string [key="JobExecution"]
+        - <b>info_msg: string
+        - <b>error_msg: string
+        - <b>job_result: string
+    }
+
+
+    JobExecutionUVE *- JobExecution
+
+    JobExecutionUVE .. JobLog
+}
+
+job_template . JobExecutionUVE
+@enduml

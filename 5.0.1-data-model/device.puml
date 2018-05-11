@@ -1,0 +1,115 @@
+@startuml
+package Config_DataModel\n[schema/vnc_cfg.xsd] {
+
+    class global_system_config << (I, #FF7700) Identity>> {
+        - autonomous_system: AutonomousSystemType
+        - config_version: String
+        - graceful_restart_parameters: GracefulRestartParametersType
+        - plugin_tuning: PluginProperties
+        - ibgp_auto_mesh: Boolean
+        - bgp_always_compare_med: Boolean
+        - rd_cluster_seed: RdClusterSeedType
+        - ip_fabric_subnets: SubnetListType
+        - bgpaas_parameters: BGPaaServiceParametersType
+        - <b>supported_device_families: DeviceFamilyListType</b>
+        - <b>supported_fabric_annotations: KeyValuePairs</b>
+    }
+
+    class physical_router << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/physical_router.svg]]
+        - vendor_name: String
+        - product_name: String
+        - role: PhysicalRouterRole
+        - <b>role: VirtualNetworkRole
+        - <b>device_family: String</b>
+        - <b>serial_num: String</b>
+    }
+
+    class physical_interface << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/physical_interface.svg]]
+        - ethernet_segment_identifier: String
+        - <b>type: enum { regular, ae, irb }
+        - <b>mac_addresses: MacAddressesType</b>
+    }
+
+    class logical_interface << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/logical_interface.svg]]
+    }
+
+    class port_group << (I, #FF7700) Identity>> #lightgreen {
+        - <b>type: enum { lag, mclag }
+        - <b>lacp_enabled: Boolean</b>
+    }
+
+
+    class virtual_machine_interface << (I, #FF7700) Identity>> {
+        - mac_addresses: MacAddressesType
+    }
+
+    class virtual_machine << (I, #FF7700) Identity>> {
+        - type: enum { vm, bare_metal }
+    }
+
+    class fabric << (I, #FF7700) Identity>> {
+        - <b>annotations: Map<String, String>
+        - <b>credentials: List<DeviceCredential>
+        - <b>fabric_protocol: enum { ebgp }
+        - <b>enforce_symmetry: Boolean
+    }
+
+    class instance_ip << (I, #FF7700) Identity>> {
+        - address: IpAddressType
+        - family: enum { v4, v6 }
+        - address_mode: enum { active_active, active_standby }
+        - secondary_ip_tracking_ip: SubnetType
+        - subnet_uuid: UUID
+        - secondary: Boolean
+        - local_ip: Boolean
+        - service_instance_ip: Boolean
+        - service_health_check_ip: Boolean
+    }
+
+    class network_ipam << (I, #FF7700) Identity>> {
+        - mgmt: IpamType
+        - subnets: list<IpamSubnetType>
+        - ipam-subnet-method: enum {
+            user-defined-subnet
+            flat-subnet
+            auto-subnet }
+    }
+}
+
+package Operational_DataModel {
+    class lldp_topology << (I, #FF7700) Identity>> {
+    }
+
+    class link << (I, #FF7700) Identity>> {
+        - <b>type: enum { ethernet, ipsec }
+        - <b>left_tp: TerminationPointType
+        - <b>right_tp: TerminationPointType
+    }
+}
+
+global_system_config *-- physical_router
+global_system_config "1" *- "n" fabric
+
+fabric "1" ..> " 1" lldp_topology: <physical topology>
+lldp_topology "n     " .> "   1" physical_router: <nodes>
+lldp_topology "1 " ..> "n " link: <links>
+physical_router *-- physical_interface: <has>
+
+physical_router *-- port_group: <port_groups>
+port_group -> physical_interface
+
+link "1   " .> " 1..2" physical_interface: "termination\npoint"
+
+physical_interface *-- logical_interface: <has>
+
+logical_interface "1    " -> "    1" virtual_machine_interface
+'link "1 " ..> "1 " virtual_machine_interface: termination\npoint
+virtual_machine "1 " *-- "n "virtual_machine_interface: <has>
+logical_interface <-- instance_ip
+virtual_machine_interface <-- instance_ip
+network_ipam <- instance_ip
+
+@enduml

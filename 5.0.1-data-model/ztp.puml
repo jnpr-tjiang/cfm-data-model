@@ -1,0 +1,61 @@
+@startuml
+autonumber "<b>[00]"
+
+actor admin
+participant "Go\nServer" as go #lightgreen
+participant "API\nServer" as api #lightgreen
+entity "ZTP\njob" as job
+participant "dhcpcd" as dhcpd #lightgrey
+participant "tftpd" as tftpd #lightgrey
+participant "Device\nManager" as dm #lightgreen
+
+participant "qfx" as qfx #lightblue
+
+admin -> go : import device SNs\n to fabric
+activate go
+    go -> api : execute_job\n - prepare_ztp_cfg
+    activate api
+        api -> job : launch job
+    deactivate api
+deactivate go
+        activate job
+            job -> dhcpd : configure
+            activate dhcpd
+            deactivate dhcpd
+            job -> tftpd : upload config
+            activate tftpd
+            deactivate tftpd
+        deactivate job
+
+admin -> qfx : power on device
+activate qfx
+    qfx -> dhcpd : dhcp request
+    activate dhcpd
+        dhcpd -> qfx: ip, gw, opt 43
+    deactivate dhcpd
+
+    qfx -> tftpd: download init config
+    activate tftpd
+    deactivate tftpd
+
+deactivate qfx
+
+dhcpd -> dhcpd : DHCP hook
+activate dhcpd
+    dhcpd -> api : DHCP Hook: execute_job\n - device discovery
+    activate api
+    deactivate api
+
+    dhcpd -> api : execute_job: image upgrade
+    activate api
+    deactivate api
+
+    dhcpd -> api : execute_job: underlay config
+    activate api
+    deactivate api
+
+deactivate dhcpd
+
+
+
+@enduml
