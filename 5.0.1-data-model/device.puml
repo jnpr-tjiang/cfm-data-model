@@ -20,7 +20,7 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
         - vendor_name: String
         - product_name: String
         - role: PhysicalRouterRole
-        - <b>role: VirtualNetworkRole
+        - <b>rb_roles: List<RoutingBridgingRole>
         - <b>device_family: String</b>
         - <b>serial_num: String</b>
     }
@@ -37,7 +37,7 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     }
 
     class port_group << (I, #FF7700) Identity>> #lightgreen {
-        - <b>type: enum { lag, mclag }
+        - <b>type: enum { lag }
         - <b>lacp_enabled: Boolean</b>
     }
 
@@ -54,7 +54,6 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
         - <b>annotations: Map<String, String>
         - <b>credentials: List<DeviceCredential>
         - <b>fabric_protocol: enum { ebgp }
-        - <b>enforce_symmetry: Boolean
     }
 
     class instance_ip << (I, #FF7700) Identity>> {
@@ -108,8 +107,8 @@ physical_interface *-- logical_interface: <has>
 logical_interface "1    " -> "    1" virtual_machine_interface
 'link "1 " ..> "1 " virtual_machine_interface: termination\npoint
 virtual_machine "1 " *-- "n "virtual_machine_interface: <has>
-logical_interface <-- instance_ip
-virtual_machine_interface <-- instance_ip
-network_ipam <- instance_ip
+logical_interface "1 " <-- "1   " instance_ip: fabric\ninterface ip
+virtual_machine_interface "1  " <-- "1" instance_ip
+network_ipam " 1" <- "n"instance_ip
 
 @enduml
