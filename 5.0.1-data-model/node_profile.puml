@@ -1,4 +1,4 @@
-@startuml
+kkjjj@startuml
 package Config_DataModel\n[schema/vnc_cfg.xsd] {
 
     class global_system_config << (I, #FF7700) Identity>> {
@@ -18,7 +18,7 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     class fabric << (I, #FF7700) Identity>> {
         - <b>annotations: Map<String, String>
         - <b>credentials: List<DeviceCredential>
-        - <b>fabric_protocol: enum { ebgp }
+'        - <b>fabric_protocol: enum { ebgp }
 '        - <b>enforce_symmetry: Boolean
     }
 

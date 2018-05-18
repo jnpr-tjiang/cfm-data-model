@@ -67,20 +67,17 @@ domain *-- project
 project *-- network_ipam
 global_system_config "1 " *-- "n " fabric
 
-network_ipam <- instance_ip
+network_ipam <-- instance_ip
 fabric -> network_ipam
 note on link
-<b>Two IPAM objects for fabric:
+<b>multiple IPAM objects for fabric:
  - one for the mgmt network
-    (used to configure dhcp
-    server for ZTP)
- - one for the ip fabric
-    (used to assign interface
-    IPs for the fabric links)
+ - one for the loopback ips
+ - one for the fabric device interface ips
 end note
 
 fabric --> physical_router
-physical_router *- physical_interface
+physical_router *-- physical_interface
 physical_interface *- logical_interface
 
 instance_ip --> logical_interface: assigned to
