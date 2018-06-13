@@ -4,7 +4,9 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
 
     class PlaybookInfoType << (T, #FF7700) ComplexType>> #lightblue {
         - <b>playbook_uri: string
+        - <b>vendor: string
         - <b>device_family: string
+        - <b>job_completion_weightage: integer
     }
 
     class PlaybookInfoListType << (T, #FF7700) ComplexType>> #lightblue {

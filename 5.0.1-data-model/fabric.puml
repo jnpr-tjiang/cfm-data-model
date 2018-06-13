@@ -31,7 +31,9 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     }
 
     class fabric_namespace << (I, #FF7700) Identity>> {
-        - <b>type: enum { IPV4_CIDR, MAC_ADDR, ASN }
+        - <b>type: enum
+            - <b>IPV4_CIDR, MAC_ADDR,
+            - <b>ASN, ASN_RANGE, SERIAL_NUM
         - <b>value: NamespaceValue
     }
 
@@ -48,6 +50,8 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
             - <b>ipv4_cidr: String
             - <b>mac_addr: List<String>
             - <b>asn: number
+            - <b>asn_ranges: List<AsnRangeType>
+            - <b>serial_nums: List<String>
     }
 
     class tag << (I, #FF7700) Identity>> {

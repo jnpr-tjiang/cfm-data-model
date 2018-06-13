@@ -37,17 +37,17 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     class node_profile << (I, #FF7700) Identity>> #lightgreen {
         - <b>vendor: String
         - <b>device_family: String
-        - <b>hardware: List<HardwareType>
+        - <b>hardware: List<Hardware>
         - <b>physical_router_roles: List<PhysicalRouterRole>
         - <b>routing_bridging_roles: List<RoutingBridgingRole>
     }
 
-    class HardwareType << (T, #FF7700) ComplexType >> #lightblue {
+    class Hardware << (T, #FF7700) ComplexType >> #lightblue {
       - <b>hardware_name: String
-      - <b>cards: Map<slot, CardType>
+      - <b>cards: Map<slot, Card>
     }
 
-    class CardType << (T, #FF7700) ComplexType >> #lightblue {
+    class Card << (T, #FF7700) ComplexType >> #lightblue {
         - <b>card_name: String
         - <b>ports: Map<
              <b>port_name,
@@ -93,11 +93,11 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     end note
 
     node_profile "1" *- "n" role_config
-    node_profile .. HardwareType
+    node_profile --> Hardware
     node_profile .. PhysicalRouterRole: <capable of>
     node_profile .. RoutingBridgingRole: <capable of>
 
-    HardwareType . CardType
+    Hardware *- Card
 
     physical_router .. PhysicalRouterRole:  "<assigned>"
     physical_router .. RoutingBridgingRole:  "<assigned>"

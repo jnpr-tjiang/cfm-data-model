@@ -36,7 +36,7 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
         [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/logical_interface.svg]]
     }
 
-    class link_aggregation_group << (I, #FF7700) Identity>> #lightgreen {
+    class link_aggregation_group << (I, #FF7700) Identity>> {
         - <b>lacp_enabled: Boolean</b>
     }
 
@@ -92,9 +92,9 @@ physical_router *- link_aggregation_group: <has>
 physical_router *-- physical_interface: <has>
 
 physical_interface <-- link_aggregation_group
-physical_interface -> physical_interface
+physical_interface -> physical_interface: Physical\nInterface\nConnection
 physical_interface *-- logical_interface: <has>
-physical_interface . RoutingBridgingRole
+RoutingBridgingRole . physical_router
 
 virtual_machine "1 " *-- "n "virtual_machine_interface: <has>
 logical_interface "1    " -> "    1" virtual_machine_interface

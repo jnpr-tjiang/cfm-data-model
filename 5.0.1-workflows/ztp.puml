@@ -1,0 +1,33 @@
+@startuml
+title <b> Deployment-1: ATT like deployment </b>\n\n
+autonumber "<b>[00]"
+participant WebUI as ui
+
+box "config_api container" #LightGreen
+participant "Config\nApi Server" as api
+entity "Job\nManager" as job
+entity "DHCP" as dhcp <<playbook>>
+entity "Device\nDiscovery" as dd <<playbook>>
+entity "Device\nOnboard" as import <<playbook>>
+entity "Topo\nDiscovery" as topo <<playbook>>
+end box
+
+box "config_devicemgr container" #LightGrey
+participant "DeviceManager" as dm
+end box
+
+box "analytics_collector container" #LightBlue
+participant "Analytics\nCollector" as collector
+end box
+
+box "Junos Devices" #lightyellow
+participant "Analytics\nApi Server" as analytics
+end box
+
+participant Device
+-> ui: create new fabric
+rnote over ui
+
+
+end rnote
+@enduml

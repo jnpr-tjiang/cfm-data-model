@@ -60,20 +60,25 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     class logical_interface << (I, #FF7700) Identity>> {
     }
 
+    class FabricNetworkTag {
+       - network_type: enum
+           - mgmt, loopback, fabric
+    }
 
 config_root *-- global_system_config
 config_root *- domain
 domain *-- project
 project *-- network_ipam
+project *-- virtual_network
 global_system_config "1 " *-- "n " fabric
 
 network_ipam <-- instance_ip
-fabric -> network_ipam
+virtual_network -> network_ipam
+fabric -> virtual_network
 note on link
-<b>multiple IPAM objects for fabric:
- - one for the mgmt network
- - one for the loopback ips
- - one for the fabric device interface ips
+<b>multiple underlay networks for fabric:
+ - mgmt network
+ - fabric network
 end note
 
 fabric --> physical_router
@@ -85,7 +90,7 @@ instance_ip --> logical_interface: assigned to
 
 'global_system_config *--- virtual_router
 'virtual_router --> network_ipam
-
+FabricNetworkTag..(fabric, virtual_network)
 }
 
 @enduml
