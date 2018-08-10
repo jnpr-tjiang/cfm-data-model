@@ -42,12 +42,12 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
         - <b>routing_bridging_roles: List<RoutingBridgingRole>
     }
 
-    class Hardware << (T, #FF7700) ComplexType >> #lightblue {
+    class Hardware << (I, #FF7700) Identity >> #lightgreen {
       - <b>hardware_name: String
       - <b>cards: Map<slot, Card>
     }
 
-    class Card << (T, #FF7700) ComplexType >> #lightblue {
+    class Card << (I, #FF7700) Identity >> #lightgreen {
         - <b>card_name: String
         - <b>ports: Map<
              <b>port_name,
@@ -55,11 +55,14 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     }
 
     class PhysicalRouterRole << (T, #FF7700) ComplexType >> #lightblue {
-        - enum { leaf, spine, <b>dci, <b>gateway}
+        - enum { leaf, spine }
     }
 
     class RoutingBridgingRole << (T, #FF7700) ComplexType >> #lightblue {
-        - <b>enum { crb, erb, rr }
+        - <b>enum {
+             crb-gateway,
+             crb-access,
+             dc-gateway }
     }
 
     class job_template << (I, #FF7700) Identity>> {
@@ -102,7 +105,6 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     physical_router .. PhysicalRouterRole:  "<assigned>"
     physical_router .. RoutingBridgingRole:  "<assigned>"
     network_ipam " 2     " <- "    1 "fabric
-
 
 }
 @enduml
