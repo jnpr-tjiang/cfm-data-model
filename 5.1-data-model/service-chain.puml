@@ -1,0 +1,169 @@
+@startuml
+
+
+class domain << (I, #FF7700) Identity>> {
+}
+
+class project << (I, #FF7700) Identity>> {
+}
+
+class global_system_config << (I, #FF7700) Identity>> {
+}
+
+class service_template << (I, #FF7700) Identity>> {
+  - properties: ServiceTemplateType
+}
+
+class service_instance << (I, #FF7700) Identity>> {
+  - properties: ServiceInstanceType
+  - bindings: list<KeyValuePair>
+}
+
+class service_appliance_set << (I, #FF7700) Identity>> {
+  - properties: List<KeyValuePair>
+  - service_appliance_driver: string
+  - ha_mode: "active-active" or "active-standby"
+}
+
+class service_appliance << (I, #FF7700) Identity>> {
+  - user_credential: UserCredentials
+  - ip_address: IpAddressType
+  - properties: List<KeyValuePair>
+}
+
+class physical_router << (I, #FF7700) Identity>> {
+}
+
+class physical_interface << (I, #FF7700) Identity>> {
+}
+
+class virtual_machine << (I, #FF7700) Identity>> {
+}
+
+class port_tuple << (I, #FF7700) Identity>> {
+}
+
+class virtual_network << (I, #FF7700) Identity>> {
+}
+
+class virtual_machine_interface << (I, #FF7700) Identity>> {
+}
+
+class  ServiceTemplateType << (T, #FF7700) ComplexType >> #lightblue {
+  - version: int
+  - <b>service_mode: enum
+        - transparent
+        - in-network
+        - in-network-nat
+  - <b>service_type: enum
+        - firewall
+        - analyzer
+        - source-nat
+        - loadbalancer
+  - image_name: string
+  - service_scaling: boolean
+  - <b>interface_type: list<ServiceTempalteInterfaceType>
+  - flavor: string
+  - <b>service_virtualization_type: enum
+        - virtual-machine
+        - network-namespace
+        - vrouter-instance
+        - physical-device
+  - availability_zone_enable: boolean
+  - vrouter_instance_type: enum
+        - libvert-qemu
+        - docker
+  - instance_data: string
+}
+
+class  ServiceInstanceType << (T, #FF7700) ComplexType >> #lightblue {
+  - auto_policy: boolean
+  - availability_zone: string
+  - interface_list: List<ServiceInstanceInterfaceType>
+  - scale_out: ServiceScaleOutType
+  - ha-mode: pattern
+        - active-active
+        - active-standby
+  - virtual_router_id: UUID
+}
+
+class  ServiceTemplateInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
+  - service_interface_type: pattern
+        - management
+        - left
+        - right
+        - other[0-9]
+  - shared_ip: boolean
+  - static_route_enable: boolean
+}
+
+class  ServiceApplianceInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
+  - interface_type: pattern
+        - management
+        - left
+        - right
+        - other[0-9]
+}
+
+class  ServiceInstanceInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
+  - virtual_network: string
+  - ip_address: IpAddressType
+  - static_routes: RouteTableType
+  - allowed_address_pairs: list<AllowedAddressPair>
+}
+
+class AllowedAddressPair << (T, #FF7700) ComplexType >> #lightblue {
+  - ip: SubnetType
+  - mac: string
+  - address_mode: enum
+        - active-active
+        - active-standby
+}
+
+class  ServiceInterfaceTag << (T, #FF7700) ComplexType >> #lightblue {
+  - interface_type: ServiceInterfaceType<pattern>
+        - management
+        - left
+        - right
+        - other[0-9]
+}
+
+domain "1" *- "n" service_template
+domain "1" *-- "n" project
+
+service_template *. ServiceTemplateType: properties
+
+ServiceTemplateType "1 " *- "n    " ServiceTemplateInterfaceType
+
+project "1 " *-- "n  " service_instance
+project *--- network_ipam
+project *-- virtual_network
+project *-- virtual_machine_interface
+
+virtual_machine_interface -> virtual_network
+virtual_network --> network_ipam
+
+service_instance --> service_template
+
+global_system_config *-- service_appliance_set
+global_system_config *-- physical_router
+
+physical_router *-- physical_interface
+
+service_appliance_set *-- service_appliance
+service_appliance_set <---- service_template
+
+service_appliance -> physical_interface
+(service_appliance, physical_interface) .. ServiceApplianceInterfaceType
+virtual_machine --> service_instance
+service_instance --> instance_ip
+(service_instance, instance_ip) .. ServiceInterfaceTag: shared_ip
+
+port_tuple --* service_instance
+physical_interface <-- port_tuple
+
+network_ipam <-- instance_ip
+service_instance . ServiceInstanceType: properties
+ServiceInstanceType "1" *- "n" ServiceInstanceInterfaceType
+ServiceInstanceInterfaceType "1" *-- "n" AllowedAddressPair
+@enduml

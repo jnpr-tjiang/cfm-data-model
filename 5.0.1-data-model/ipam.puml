@@ -23,32 +23,32 @@ package Config_DataModel\n[schema/vnc_cfg.xsd] {
     }
 
     class network_ipam << (I, #FF7700) Identity>> {
-        - mgmt: IpamType
-          - ipam-method: IpamMethodType
-          - ipam-dns-method: IpamDnsMethodType
-          - ipam-dns-server: IpamDnsAddressType
-          - dhcp-option-list: DhcpOptionsListType
-          - cidr-block: SubnetType
-          - host-routes: RouteTableType
-        - subnets: list<IpamSubnetType>
-          - subnet: SubnetType
-          - default_gateway: IpAddressType
-          - dns-server-address: IpAddressType
-          - subnet-uuid: String
-          - enable-dhcp: xsd:boolean
-          - dns-nameservers: String
-          - allocation-pools: AllocationPoolType
-          - addr_from_start: Boolean
-          - dhcp-option-list: DhcpOptionsListType
-          - host-routes: RouteTableType
-          - subnet-name: String
-          - alloc-unit: integer
-          - created: xsd:dateTime
-          - last-modified: xsd:dateTime
-        - ipam-subnet-method: enum {
-            user-defined-subnet
-            flat-subnet
-            auto-subnet }
+'        - mgmt: IpamType
+'          - ipam-method: IpamMethodType
+'          - ipam-dns-method: IpamDnsMethodType
+'          - ipam-dns-server: IpamDnsAddressType
+'          - dhcp-option-list: DhcpOptionsListType
+'          - cidr-block: SubnetType
+'          - host-routes: RouteTableType
+'        - subnets: list<IpamSubnetType>
+'          - subnet: SubnetType
+'          - default_gateway: IpAddressType
+'          - dns-server-address: IpAddressType
+'          - subnet-uuid: String
+'          - enable-dhcp: xsd:boolean
+'          - dns-nameservers: String
+'          - allocation-pools: AllocationPoolType
+'          - addr_from_start: Boolean
+'          - dhcp-option-list: DhcpOptionsListType
+'          - host-routes: RouteTableType
+'          - subnet-name: String
+'          - alloc-unit: integer
+'          - created: xsd:dateTime
+'          - last-modified: xsd:dateTime
+'        - ipam-subnet-method: enum {
+'            user-defined-subnet
+'            flat-subnet
+'            auto-subnet }
     }
 
     class physical_router << (I, #FF7700) Identity>> {
