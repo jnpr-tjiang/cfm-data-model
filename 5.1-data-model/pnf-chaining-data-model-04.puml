@@ -1,0 +1,140 @@
+@startuml
+
+skinparam object {
+	BackgroundColor PaleGreen
+	BackgroundColor<<PhysicalRouter>> Wheat
+	BackgroundColor<<PhysicalInterface>> Wheat
+	BackgroundColor<<LogicalRouter>> Wheat
+	BackgroundColor<<VirtualNetwork>> Wheat
+	BackgroundColor<<VirtualMachineInterface>> Wheat
+	BackgroundColor<<ServiceApplianceSet>> Wheat
+	BackgroundColor<<ServiceAppliance>> Wheat
+	BackgroundColor<<ServiceTemplate>> Wheat
+}
+
+package default-domain {
+    object Firewall_Svc<<ServiceTemplate>> {
+        - properties:
+            \tservice_type: "firewall"
+            \tinterface_types: ["left", "right"]
+            \tservice_virtualization_type: "physical_device"
+    }
+}
+
+package global_system_config {
+    
+    object SRX<<PhysicalRouter>> {
+    }
+
+    object SRX_Left_PI<<PhysicalInterface>> {
+    }
+
+    object SRX_Right_PI<<PhysicalInterface>> {
+    }
+
+    object PNF_CLUSTER<<ServiceApplianceSet>> {
+    }
+
+    object PNF<<ServiceAppliance>> {
+    }
+
+    object QFX<<PhysicalRouter>> {
+    }
+
+    object QFX_Left_PI<<PhysicalInterface>> {
+    }
+
+    object QFX_Right_PI<<PhysicalInterface>> {
+    }
+
+    SRX *-- SRX_Left_PI
+    SRX *-- SRX_Right_PI
+
+    QFX --> QFX_Left_PI
+    QFX --> QFX_Right_PI
+
+    QFX_Left_PI <--> SRX_Left_PI: Discovered\nunderlay conn
+    QFX_Right_PI <--> SRX_Right_PI: discovered\nunderlay conn
+
+
+    PNF_CLUSTER *- PNF
+    SRX_Left_PI <-- PNF: "left\t\t\nunderlay\t\t\nport\t\t"
+    SRX_Right_PI <-- PNF: right\nunderlay\nport
+}
+
+package project {
+    object FW_Svc_inst<<ServiceInstance>> {
+        
+    }
+    
+    object RedOrange_LR<<LogicalRouter>> {
+    }
+    
+    object GreenBlue_LR<<LogicalRouter>> {
+    }
+    
+    object Red_Network<<VirtualNetwork>> {
+    }
+    
+    object Orange_Network<<VirtualNetwork>> {
+    }
+    
+    object Green_Network<<VirtualNetwork>> {
+    }
+    
+    object Blue_Network<<VirtualNetwork>> {
+    }
+    
+    object RedOrange_LR_Internal_VN<<VirtualNetwork>> {
+    }
+    
+    object GreenBlue_LR_Internal_VN<<VirtualNetwork>> {
+    }
+    
+    object Left_Attachment_Point<<PortTuple>> {
+    }
+    
+    object Right_Attachment_Point<<PortTuple>> {
+    }
+    
+    object VMI_1<<VirtualMachineInterface>> {
+    }
+    
+    object VMI_2<<VirtualMachineInterface>> {
+    }
+    
+    object VMI_3<<VirtualMachineInterface>> {
+    }
+    
+    object VMI_4<<VirtualMachineInterface>> {
+    }
+    
+    Red_Network <-- VMI_1
+    Orange_Network <-- VMI_2
+    Green_Network <-- VMI_3
+    Blue_Network <-- VMI_4
+    
+    RedOrange_LR <-- Red_Network
+    RedOrange_LR <-- Orange_Network
+    RedOrange_LR --> RedOrange_LR_Internal_VN
+    
+    GreenBlue_LR <-- Green_Network
+    GreenBlue_LR <-- Blue_Network
+    GreenBlue_LR --> GreenBlue_LR_Internal_VN
+    
+    FW_Svc_inst --> Left_Attachment_Point: Left
+    FW_Svc_inst --> Right_Attachment_Point: Right 
+    
+    Left_Attachment_Point --> RedOrange_LR
+    Right_Attachment_Point --> GreenBlue_LR
+}
+
+
+PNF_CLUSTER <-- Firewall_Svc
+Firewall_Svc <- FW_Svc_inst
+QFX <- RedOrange_LR
+QFX <- GreenBlue_LR
+QFX_Left_PI <- Left_Attachment_Point: left underlay port
+QFX_Right_PI <- Right_Attachment_Point: right underlay port
+
+@enduml

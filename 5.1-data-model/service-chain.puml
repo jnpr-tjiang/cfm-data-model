@@ -11,11 +11,50 @@ class global_system_config << (I, #FF7700) Identity>> {
 }
 
 class service_template << (I, #FF7700) Identity>> {
-  - properties: ServiceTemplateType
+  - properties: [
+      - version: int
+      - service_mode: enum
+            [ transparent | in-network | in-network-nat ]
+      - service_type: enum
+            [ firewall | analyzer | source-nat | loadbalancer ]
+      - image_name: string
+      - service_scaling: boolean
+      - interface_type: list of ServiceTemplateInterfaceType [
+            - service_interface_type: enum
+                  [ mgt | left | right | other ]
+            - shared_ip: boolean
+            - static_route_enable: boolean
+      ]
+      - flavor: string
+      - service_virtualization_type: enum
+            [ virtual-machine | network-namespace | vrouter-instance | phyysical_device ]
+      - availability_zone_enable: boolean
+      - vrouter_instance_type: enum
+            [ libvert-qemu | docker ]
+      - instance_data: string
+  ]
 }
 
 class service_instance << (I, #FF7700) Identity>> {
-  - properties: ServiceInstanceType
+  - properties: ServiceInstanceType [
+      - auto_policy: boolean
+      - availability_zone: string
+      - interface_list: List of ServiceInstanceInterfaceType [
+            - virtual_network: string
+            - ip_address: IpAddressType
+            - static_routes: RouteTableType
+            - allowed_address_pairs: list of AllowedAddressPair [
+                  - ip: SubnetType
+                  - mac: string
+                  - address_mode: enum
+                        [ active-active | active-standby ]
+            ]
+      ]
+      - scale_out: ServiceScaleOutType
+      - ha-mode: enum
+            [ active-active | active-standby ]
+      - virtual_router_id: UUID
+  ]
   - bindings: list<KeyValuePair>
 }
 
@@ -49,96 +88,49 @@ class virtual_network << (I, #FF7700) Identity>> {
 class virtual_machine_interface << (I, #FF7700) Identity>> {
 }
 
-class  ServiceTemplateType << (T, #FF7700) ComplexType >> #lightblue {
-  - version: int
-  - <b>service_mode: enum
-        - transparent
-        - in-network
-        - in-network-nat
-  - <b>service_type: enum
-        - firewall
-        - analyzer
-        - source-nat
-        - loadbalancer
-  - image_name: string
-  - service_scaling: boolean
-  - <b>interface_type: list<ServiceTempalteInterfaceType>
-  - flavor: string
-  - <b>service_virtualization_type: enum
-        - virtual-machine
-        - network-namespace
-        - vrouter-instance
-        - physical-device
-  - availability_zone_enable: boolean
-  - vrouter_instance_type: enum
-        - libvert-qemu
-        - docker
-  - instance_data: string
-}
-
-class  ServiceInstanceType << (T, #FF7700) ComplexType >> #lightblue {
-  - auto_policy: boolean
-  - availability_zone: string
-  - interface_list: List<ServiceInstanceInterfaceType>
-  - scale_out: ServiceScaleOutType
-  - ha-mode: pattern
-        - active-active
-        - active-standby
-  - virtual_router_id: UUID
-}
-
-class  ServiceTemplateInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
-  - service_interface_type: pattern
-        - management
-        - left
-        - right
-        - other[0-9]
-  - shared_ip: boolean
-  - static_route_enable: boolean
+class logical_router << (I, #FF7700) Identity>> {
+  - gateway_external: boolean
 }
 
 class  ServiceApplianceInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
   - interface_type: pattern
-        - management
-        - left
-        - right
-        - other[0-9]
-}
-
-class  ServiceInstanceInterfaceType << (T, #FF7700) ComplexType >> #lightblue {
-  - virtual_network: string
-  - ip_address: IpAddressType
-  - static_routes: RouteTableType
-  - allowed_address_pairs: list<AllowedAddressPair>
-}
-
-class AllowedAddressPair << (T, #FF7700) ComplexType >> #lightblue {
-  - ip: SubnetType
-  - mac: string
-  - address_mode: enum
-        - active-active
-        - active-standby
+      - management
+      - left
+      - right
+      - other[0-9]
 }
 
 class  ServiceInterfaceTag << (T, #FF7700) ComplexType >> #lightblue {
   - interface_type: ServiceInterfaceType<pattern>
-        - management
-        - left
-        - right
-        - other[0-9]
+      - management
+      - left
+      - right
+      - other[0-9]
+}
+
+class  LogicalRouterVirtualNetworkType << (T, #FF7700) ComplexType >> #lightblue {
+  - virtual_network_type: <b>enum
+        - ExternalGateway
+        - InternalVirtualNetwork
 }
 
 domain "1" *- "n" service_template
 domain "1" *-- "n" project
 
-service_template *. ServiceTemplateType: properties
-
-ServiceTemplateType "1 " *- "n    " ServiceTemplateInterfaceType
-
 project "1 " *-- "n  " service_instance
 project *--- network_ipam
 project *-- virtual_network
 project *-- virtual_machine_interface
+project *-- logical_router
+logical_router --> virtual_network
+(logical_router, virtual_network) . LogicalRouterVirtualNetworkType
+logical_router <-- virtual_network
+logical_router --> virtual_machine_interface
+router_target <- logical_router
+route_table <- logical_router
+
+physical_router <-- logical_router
+
 
 virtual_machine_interface -> virtual_network
 virtual_network --> network_ipam
@@ -151,10 +143,10 @@ global_system_config *-- physical_router
 physical_router *-- physical_interface
 
 service_appliance_set *-- service_appliance
-service_appliance_set <---- service_template
+service_appliance_set <--- service_template
 
 service_appliance -> physical_interface
-(service_appliance, physical_interface) .. ServiceApplianceInterfaceType
+ServiceApplianceInterfaceType .. (service_appliance, physical_interface)
 virtual_machine --> service_instance
 service_instance --> instance_ip
 (service_instance, instance_ip) .. ServiceInterfaceTag: shared_ip
@@ -163,7 +155,4 @@ port_tuple --* service_instance
 physical_interface <-- port_tuple
 
 network_ipam <-- instance_ip
-service_instance . ServiceInstanceType: properties
-ServiceInstanceType "1" *- "n" ServiceInstanceInterfaceType
-ServiceInstanceInterfaceType "1" *-- "n" AllowedAddressPair
 @enduml
