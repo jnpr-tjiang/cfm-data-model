@@ -1,0 +1,92 @@
+@startuml
+class firewall_policy << (I, #FF7700) Identity>> {
+}
+
+class firewall_rule << (I, #FF7700) Identity>> {
+  - action_list: ActionListType
+    \t- simple_action: "deny" or "pass"
+    \t- gateway_name: string
+    \t- apply_service: string
+    \t- mirror_to: MirrorActionType
+    \t- assign_routing_instance: string
+    \t- log: boolean
+    \t- alert: boolean
+    \t- qos_action: string
+  - service: FirewallServiceType
+    \t- protocol: string
+    \t- protocol_id: int
+    \t- src_ports: PortType
+    \t\t- start_port: int
+    \t\t- end_port: int
+    \t- dst_ports: PortType
+    \t\t- start_port: int
+    \t\t- end_port: int
+  - endpoint_1: FirewallRuleEndpointType
+  - endpoint_2: FirewallRuleEndpointType
+    \t- subnet: SubnetType
+    \t- virtual_network: string
+    \t- address_group: string
+    \t- tags: List<string>
+    \t- tag_ids: List<int>
+    \t- any: boolean
+  - match_tags: List<TagType>
+  - match_tag_types: List<int>
+  - direction: FirewallRuleDirectionType
+}
+
+class application_policy_set << (I, #FF7700) Identity>> {
+  - all_application: boolean
+}
+
+class config_root << (I, #FF7700) Identity>> {
+}
+
+class policy_management << (I, #FF7700) Identity>> {
+}
+
+class project << (I, #FF7700) Identity>> {
+}
+
+class service_group << (I, #FF7700) Identity>> {
+  - firewall_service_list: List<FirewallServiceType>
+    \t- protocol: string
+    \t- protocol_id: int
+    \t- src_ports: PortType
+    \t\t- start_port: int
+    \t\t- end_port: int
+    \t- dst_ports: PortType
+    \t\t- start_port: int
+    \t\t- end_port: int
+}
+
+class address_group << (I, #FF7700) Identity>> {
+  - prefix: SubnetListType
+}
+
+class virtual_network << (I, #FF7700) Identity>> {
+}
+
+class FirewallSequence << (T, #FF7700) ComplexType >> #lightblue{
+  - sequence: string
+}
+
+application_policy_set "1 " -> "n " firewall_policy
+(application_policy_set, firewall_policy). FirewallSequence
+firewall_policy "1 " -> "n " firewall_rule
+(firewall_policy, firewall_rule) . FirewallSequence
+firewall_rule -> service_group
+firewall_rule --> address_group
+firewall_rule --> virtual_network
+virtual_network <-- virtual_machine_interface
+
+project *-- policy_management
+config_root *-- policy_management
+policy_management *-- service_group: has
+policy_management *-- address_group: has
+policy_management *-- firewall_rule: has
+policy_management *-- firewall_policy: has
+policy_management *-- application_policy_set: has
+
+firewall_rule --> security_logging_object
+firewall_policy --> security_logging_object
+@enduml

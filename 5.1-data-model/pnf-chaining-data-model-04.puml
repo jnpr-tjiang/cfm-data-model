@@ -24,6 +24,7 @@ package default-domain {
 package global_system_config {
     
     object SRX<<PhysicalRouter>> {
+        phys_role: PNF
     }
 
     object SRX_Left_PI<<PhysicalInterface>> {
@@ -39,6 +40,10 @@ package global_system_config {
     }
 
     object QFX<<PhysicalRouter>> {
+        phys_role: spine
+        rb_roles:
+            \tcrb-gateway
+            \tservice-attachment
     }
 
     object QFX_Left_PI<<PhysicalInterface>> {
@@ -64,31 +69,31 @@ package global_system_config {
 
 package project {
     object FW_Svc_inst<<ServiceInstance>> {
-        
+        enable_bgp: True
     }
     
-    object RedOrange_LR<<LogicalRouter>> {
+    object Engineering_LR<<LogicalRouter>> {
     }
     
-    object GreenBlue_LR<<LogicalRouter>> {
+    object Sales_LR<<LogicalRouter>> {
     }
     
-    object Red_Network<<VirtualNetwork>> {
+    object Dev<<VirtualNetwork>> {
     }
     
-    object Orange_Network<<VirtualNetwork>> {
+    object QA<<VirtualNetwork>> {
     }
     
-    object Green_Network<<VirtualNetwork>> {
+    object Pre_Sales<<VirtualNetwork>> {
     }
     
-    object Blue_Network<<VirtualNetwork>> {
+    object Post_Sales<<VirtualNetwork>> {
     }
     
-    object RedOrange_LR_Internal_VN<<VirtualNetwork>> {
+    object Engineering_LR_Internal_VN<<VirtualNetwork>> {
     }
     
-    object GreenBlue_LR_Internal_VN<<VirtualNetwork>> {
+    object Sales_LR_Internal_VN<<VirtualNetwork>> {
     }
     
     object Left_Attachment_Point<<PortTuple>> {
@@ -109,31 +114,31 @@ package project {
     object VMI_4<<VirtualMachineInterface>> {
     }
     
-    Red_Network <-- VMI_1
-    Orange_Network <-- VMI_2
-    Green_Network <-- VMI_3
-    Blue_Network <-- VMI_4
+    Dev <-- VMI_1
+    QA <-- VMI_2
+    Pre_Sales <-- VMI_3
+    Post_Sales <-- VMI_4
     
-    RedOrange_LR <-- Red_Network
-    RedOrange_LR <-- Orange_Network
-    RedOrange_LR --> RedOrange_LR_Internal_VN
+    Engineering_LR <-- Dev
+    Engineering_LR <-- QA
+    Engineering_LR --> Engineering_LR_Internal_VN
     
-    GreenBlue_LR <-- Green_Network
-    GreenBlue_LR <-- Blue_Network
-    GreenBlue_LR --> GreenBlue_LR_Internal_VN
+    Sales_LR <-- Pre_Sales
+    Sales_LR <-- Post_Sales
+    Sales_LR --> Sales_LR_Internal_VN
     
     FW_Svc_inst --> Left_Attachment_Point: Left
     FW_Svc_inst --> Right_Attachment_Point: Right 
     
-    Left_Attachment_Point --> RedOrange_LR
-    Right_Attachment_Point --> GreenBlue_LR
+    Left_Attachment_Point --> Engineering_LR
+    Right_Attachment_Point --> Sales_LR
 }
 
 
 PNF_CLUSTER <-- Firewall_Svc
 Firewall_Svc <- FW_Svc_inst
-QFX <- RedOrange_LR
-QFX <- GreenBlue_LR
+QFX <- Engineering_LR
+QFX <- Sales_LR
 QFX_Left_PI <- Left_Attachment_Point: left underlay port
 QFX_Right_PI <- Right_Attachment_Point: right underlay port
 

@@ -16,6 +16,7 @@ package default-domain {
 package global_system_config {
 
     object SRX<<PhysicalRouter>> {
+        phys_role: PNF
     }
 
     object SRX_Left_PI<<PhysicalInterface>> {
@@ -31,6 +32,10 @@ package global_system_config {
     }
 
     object QFX<<PhysicalRouter>> {
+        phys_role: spine
+        rb_roles:
+            \tcrb-gateway
+            \tservice-attachment
     }
 
     object QFX_Left_PI<<PhysicalInterface>> {

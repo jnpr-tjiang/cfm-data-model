@@ -1,0 +1,68 @@
+@startuml
+package global-system-config {
+
+    class physical_router << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/physical_router.svg]]
+        - vendor_name: String
+        - product_name: String
+        - role: PhysicalRouterRole
+        - rb_roles: List<RoutingBridgingRole>
+        - device_family: String</b>
+        - serial_num: String</b>
+    }
+
+    class physical_interface << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/physical_interface.svg]]
+        - ethernet_segment_identifier: String
+        - type: enum { regular, ae, irb }
+        - mac_addresses: MacAddressesType</b>
+    }
+
+    class logical_interface << (I, #FF7700) Identity>> {
+        [[file:///Users/tjiang/gitlab/xmlparsing/xmltest/svg/logical_interface.svg]]
+    }
+
+    class link_aggregation_group << (I, #FF7700) Identity>> {
+        - lacp_enabled: Boolean</b>
+    }
+
+    class fabric << (I, #FF7700) Identity>> {
+        - annotations: Map<String, String>
+        - credentials: List<DeviceCredential>
+        - fabric_protocol: enum { ebgp }
+    }
+
+    fabric -> physical_router
+    fabric *--- link_aggregation_group: has
+    physical_router *-- physical_interface: has
+    physical_interface *-- logical_interface: has
+    physical_interface <-- link_aggregation_group
+}
+
+package tenant-project {
+    class virtual_machine_interface << (I, #FF7700) Identity>> {
+        - mac_addresses: MacAddressesType
+    }
+
+    class virtual_network << (I, #FF7700) Identity>> {
+    }
+
+    class bridge_domain {
+        - vlan_tag_based_bridge_domain: boolean
+    }
+
+    class BridgeDomainMembershipType << (T, #FF7700) ComplexType >> #lightblue {
+        - vlan_tag: Dot1QTagType
+    }
+
+
+    virtual_machine_interface --> bridge_domain
+    (virtual_machine_interface, bridge_domain) . BridgeDomainMembershipType
+    virtual_machine_interface "n " -> "1 " virtual_network
+    virtual_network *-- bridge_domain: has
+}
+
+link_aggregation_group --> virtual_machine_interface
+logical_interface --> virtual_machine_interface
+
+@enduml

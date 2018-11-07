@@ -62,6 +62,7 @@ class service_appliance_set << (I, #FF7700) Identity>> {
   - properties: List<KeyValuePair>
   - service_appliance_driver: string
   - ha_mode: "active-active" or "active-standby"
+  - <b>service_virtualization: "PNF" or "VNF"
 }
 
 class service_appliance << (I, #FF7700) Identity>> {
