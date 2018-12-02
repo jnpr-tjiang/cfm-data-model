@@ -1,0 +1,44 @@
+@startuml
+
+package project {
+  class logical-router<< (I, #FF7700) Identity>> {
+  }
+
+  class virtual-network<< (I, #FF7700) Identity>> {
+  }
+
+  class routing-instance<< (I, #FF7700) Identity>> {
+  }
+
+  "logical-router" -> "virtual-network": ExternalGateway\nor InternalVirtualNetwork
+  "virtual-network" -> "logical-router": "tenant network interconnect"
+  "virtual-network" *-- "routing-instance": derived
+}
+
+package global-system-config {
+  class physical-router<< (I, #FF7700) Identity>> {
+  }
+
+  class data-center-interconnect<< (I, #FF7700) Identity>> {
+    - bgp-hold-time
+    - bgp-address-families
+    - configured-route-target-list
+    - vxlan-network-identifier
+    -
+  }
+
+  class fabric<< (I, #FF7700) Identity>> {
+  }
+
+  fabric -> "physical-router"
+}
+
+class route-target<< (I, #FF7700) Identity>> {
+}
+
+"data-center-interconnect" -> "logical-router"
+"data-center-interconnect" -> "virtual-network"
+"routing-instance" --> "route-target": auto\nassigned
+"logical-router" --> "route-target": user\nassigned
+"logical-router" -> "physical-router"
+@enduml

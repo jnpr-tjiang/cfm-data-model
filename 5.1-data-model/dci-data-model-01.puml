@@ -1,0 +1,60 @@
+@startuml
+
+package default-global-system-config <<global-system-config>> {
+  object fab_1 <<fabric>> {
+  }
+  object spine_1 <<physical-router>> {
+  }
+
+  object fab_2 <<fabric>> {
+  }
+  object spine_2 <<physical-router>> {
+  }
+
+'  object dci <<data-center-interconnect>> {
+'  }
+
+  fab_1 --> spine_1
+  fab_2 --> spine_2
+}
+
+package tenant_A <<project>>{
+  object LR_A <<logical-router>> {
+  }
+
+  object internal_vn_A<<virtual-network>> {
+  }
+
+  object vn1 <<virtual-network>> {
+  }
+
+  object vn2 <<virtual-network>> {
+  }
+
+  LR_A <-- vn1
+  LR_A <-- vn2
+  LR_A -> internal_vn_A
+}
+
+package tenant_B <<project>>{
+  object LR_B <<logical-router>> {
+  }
+
+  object internal_vn_B<<virtual-network>> {
+  }
+
+  object vn3 <<virtual-network>> {
+  }
+
+  object vn4 <<virtual-network>> {
+  }
+
+  LR_B <-- vn3
+  LR_B <-- vn4
+  LR_B -> internal_vn_B
+}
+
+spine_1 <-- LR_A
+spine_2 <-- LR_B
+
+@enduml
