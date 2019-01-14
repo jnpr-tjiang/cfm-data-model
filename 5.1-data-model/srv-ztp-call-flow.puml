@@ -1,0 +1,70 @@
+@startuml
+autonumber "<b>[00]"
+participant WebUI as ui
+
+participant "Contrail" as contrail
+
+ui -> contrail :  install Contrail AIO
+activate contrail
+    contrail -> contrail : initialize db
+    activate contrail
+    deactivate contrail
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-00.png>
+    end note
+deactivate contrail
+
+ui -> contrail : fabric ztp job
+activate contrail
+    contrail -> contrail : fabric onboarding
+    activate contrail
+    deactivate contrail
+
+    contrail -> contrail : fabric role assignment
+    activate contrail
+    deactivate contrail
+
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-01.png>
+    end note
+deactivate contrail
+
+ui -> contrail : server discovery job
+activate contrail
+    contrail -> contrail : discover server\n and topology
+    activate contrail
+    deactivate contrail
+
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-02.png>
+    end note
+deactivate contrail
+
+ui -> contrail : import node profile job
+activate contrail
+    contrail -> contrail : create node profile\nfor dell servers
+    activate contrail
+    deactivate contrail
+
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-03.png>
+    end note
+deactivate contrail
+
+ui -> contrail : server role assignment job
+activate contrail
+    contrail -> contrail : assign server role
+    activate contrail
+    deactivate contrail
+
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-04.png>
+    end note
+deactivate contrail
+
+@enduml

@@ -1,0 +1,102 @@
+@startuml
+package global_system_config {
+  note as n1 #lightblue
+    blue - existing resource
+  end note
+  note as n2 #lightgreen
+    green - new resource
+  end note
+  class physical_router << (I, #FF7700) Identity>> #lightblue{
+  }
+
+  class physical_interface << (I, #FF7700) Identity>> #lightblue{
+  }
+
+  class logical_interface << (I, #FF7700) Identity>> #lightblue{
+  }
+
+  class end_system << (I, #FF7700) Identity>> #lightgreen {
+    - <b>hostname: string
+  }
+
+  class port << (I, #FF7700) Identity>> #lightgreen {
+    - <b>mac: string
+  }
+
+  class port_group << (I, #FF7700) Identity>> #lightgreen {
+  }
+
+  class node_profile << (I, #FF7700) Identity>> #lightblue{
+  }
+
+  class hardware << (I, #FF7700) Identity>> #lightblue{
+  }
+
+  class card << (I, #FF7700) Identity>> #lightblue{
+    - interface_map: List<PortInfo> [
+        - name: string
+        - <b>labels: List<String>
+        - <b>port_group: string
+    ]
+  }
+  
+  note left of card
+    Each port can be assigned
+    with multiple role labels.
+    Example:
+      "interface_map": [
+          { 
+              "name": "eth0", 
+              "labels": [ "management" ]
+          },
+          {
+              "name": "eth1",
+              "labels": [ "contrail-controller" ]
+          }
+      ] 
+  end note
+  
+  physical_router *-- physical_interface
+  physical_interface *-- "logical_interface"
+
+  end_system *-- port
+  end_system *-- port_group
+  port <- port_group: contains
+
+  node_profile --> hardware
+  hardware *-- card
+  end_system -> node_profile
+  port --> tag: Auto created based\nlabels defined in\nthe node_profile\ncard interface_map
+  port_group --> tag
+
+  physical_interface -> port: \nlldp discovered\nphysical connection
+  
+  note left of tag
+    Server role labels
+       Examples:
+         - compute
+         - contrail-controller
+  end note
+}
+
+package project {
+
+  class virtual_network << (I, #FF7700) Identity>> #lightblue{
+    - <b>type: enum {underlay, overlay}
+  }
+
+  class network_ipam << (I, #FF7700) Identity>> #lightblue{
+    - subnets: List<IpamSubnetType> [
+        - subnet prefix
+        - gateway
+        - <b>vlan-tag
+      ]
+  }
+  virtual_network --> network_ipam
+  tag <-- virtual_network
+}
+
+class tag << (I, #FF7700) Identity>> #lightblue{
+}
+
+@enduml

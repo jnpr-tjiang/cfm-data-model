@@ -1,0 +1,49 @@
+@startuml
+skinparam defaultFontName Consolas
+
+object provisioning <<tag>> {
+   - <b>type: label
+}
+
+object tenant <<tag>> {
+   - <b>type: label
+}
+
+provisioning --[hidden] tenant
+
+object qfx_tor_1 <<physical-router>> {
+}
+
+object ge_001 <<physical-interface>> {
+}
+
+object ge_002 <<physical-interface>> {
+}
+
+object ge_003 <<physical-interface>> {
+}
+
+object infra_bms_1 <<end-system>> #lightgreen {
+}
+
+object eth1 <<port>> #lightgreen {
+}
+
+object eth2 <<port>> #lightgreen {
+}
+
+object eth3 <<port>> #lightgreen {
+}
+
+qfx_tor_1 *-- ge_001
+qfx_tor_1 *-- ge_002
+qfx_tor_1 *-- ge_003
+
+ge_001 --> eth1: physical\nconnection
+ge_002 --> eth2: physical\nconnection
+ge_003 --> eth3: physical\nconnection
+
+eth1 --* infra_bms_1
+eth2 --* infra_bms_1
+eth3 --* infra_bms_1
+@enduml

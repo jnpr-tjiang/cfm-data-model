@@ -1,0 +1,77 @@
+@startuml
+skinparam defaultFontName Consolas
+
+object provisioning <<tag>> {
+   - <b>type: label
+}
+
+object tenant <<tag>> {
+   - <b>type: label
+}
+
+provisioning --[hidden] tenant
+
+object qfx_tor_1 <<physical-router>> {
+}
+
+object ge_001 <<physical-interface>> {
+}
+
+object ge_002 <<physical-interface>> {
+}
+
+object ge_003 <<physical-interface>> {
+}
+
+object infra_bms_1 <<end-system>> {
+}
+
+object eth1 <<port>> {
+}
+
+object eth2 <<port>> {
+}
+
+object eth3 <<port>> {
+}
+
+object np_dell <<node-profile>> #lightgreen {
+  <b>vendor: Dell
+  <b>supported_server_roles:
+  <b>   - controller
+}
+
+object PowerEdge_R7425 <<hardware>> #lightgreen {
+}
+
+object main_card <<card>> #lightgreen {
+  <b>interface_map:
+  <b>  - name: eth1
+  <b>     labels:
+  <b>       - provisioning
+  <b>  - name: eth2
+  <b>     port_group: bond_0
+  <b>     labels:
+  <b>       - tenant
+  <b>  - name: eth3
+  <b>     port_group: bond_0
+  <b>     labels:
+  <b>       - tenant
+}
+
+np_dell *-- PowerEdge_R7425
+PowerEdge_R7425 *-- main_card
+
+qfx_tor_1 *-- ge_001
+qfx_tor_1 *-- ge_002
+qfx_tor_1 *-- ge_003
+
+ge_001 --> eth1: physical\nconnection
+ge_002 --> eth2: physical\nconnection
+ge_003 --> eth3: physical\nconnection
+
+eth1 --* infra_bms_1
+eth2 --* infra_bms_1
+eth3 --* infra_bms_1
+
+@enduml

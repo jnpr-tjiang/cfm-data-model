@@ -1,0 +1,15 @@
+@startuml
+skinparam defaultFontName Consolas
+
+object provisioning <<tag>> #lightgreen {
+   - <b>type: label
+}
+
+object tenant <<tag>> #lightgreen {
+   - <b>type: label
+}
+
+provisioning -[hidden] tenant
+
+
+@enduml

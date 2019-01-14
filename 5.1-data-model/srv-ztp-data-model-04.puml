@@ -1,0 +1,119 @@
+@startuml
+skinparam defaultFontName Consolas
+
+object provisioning <<tag>> {
+   - <b>type: label
+}
+
+object tenant <<tag>> {
+   - <b>type: label
+}
+
+object qfx_tor_1 <<physical-router>> {
+}
+
+object ge_001 <<physical-interface>> {
+}
+
+object ge_002 <<physical-interface>> {
+}
+
+object ge_003 <<physical-interface>> {
+}
+
+object infra_bms_1 <<end-system>> {
+}
+
+object eth1 <<port>> {
+}
+
+object eth2 <<port>> {
+}
+
+object eth3 <<port>> {
+}
+
+object np_dell <<node-profile>> {
+  <b>vendor: Dell
+  <b>supported_server_roles:
+  <b>   - controller
+}
+
+object PowerEdge_R7425 <<hardware>> {
+}
+
+object main_card <<card>> {
+  <b>interface_map:
+  <b>  - name: eth1
+  <b>     labels:
+  <b>       - provisioning
+  <b>  - name: eth2
+  <b>     port_group: bond_0
+  <b>     labels:
+  <b>       - tenant
+  <b>  - name: eth3
+  <b>     port_group: bond_0
+  <b>     labels:
+  <b>       - tenant
+}
+
+np_dell *-- PowerEdge_R7425
+PowerEdge_R7425 *-- main_card
+
+object provisioning_nw <<virtual-network>> #lightgreen {
+}
+
+object tenant_nw <<virtual-network>> #lightgreen {
+}
+
+object provisioning_ipam <<network-ipam>> #lightgreen {
+  <b>subnets:
+  <b>  - prefix: 10.1.1.0/24
+  <b>     gateway: 10.1.1.254
+  <b>     vlan: 0
+  <b>     dhcp-server-: 20.1.1.1
+}
+
+object tenant_ipam <<network-ipam>> #lightgreen {
+  <b>subnets:
+  <b>  - prefix: 10.1.2.0/24
+  <b>     gateway: 10.1.2.254
+  <b>     vlan: 400
+  <b>     dhcp-relay-server: 20.1.1.1
+}
+
+object bond_0 <<port-group>> #lightgreen {
+}
+
+provisioning_nw --> provisioning_ipam
+tenant_nw --> tenant_ipam
+
+qfx_tor_1 *-- ge_001
+qfx_tor_1 *-- ge_002
+qfx_tor_1 *-- ge_003
+
+ge_001 --> eth1: physical\nconnection
+ge_002 --> eth2: physical\nconnection
+ge_003 --> eth3: physical\nconnection
+
+eth1 ---* infra_bms_1
+eth2 ---* infra_bms_1
+eth3 ---* infra_bms_1
+
+bond_0 --* infra_bms_1
+eth2 <-- bond_0
+eth3 <-- bond_0
+
+'tenant <- bond_0: \nroles:\n[contrail-controller]
+'eth1 --> provisioning: roles:\n [compute, \ncontrail-controller]\n\n\n
+'eth1 --> tenant : roles:\n[compute]
+
+infra_bms_1 -> np_dell
+
+eth1 -> provisioning
+provisioning <- provisioning_nw
+
+eth2 -> tenant
+eth3 -> tenant
+tenant <- tenant_nw
+@enduml

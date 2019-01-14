@@ -122,7 +122,8 @@ package project {
     Engineering_LR <-- Dev
     Engineering_LR <-- QA
     Engineering_LR --> Engineering_LR_Internal_VN
-    
+
+
     Sales_LR <-- Pre_Sales
     Sales_LR <-- Post_Sales
     Sales_LR --> Sales_LR_Internal_VN
@@ -139,7 +140,5 @@ PNF_CLUSTER <-- Firewall_Svc
 Firewall_Svc <- FW_Svc_inst
 QFX <- Engineering_LR
 QFX <- Sales_LR
-QFX_Left_PI <- Left_Attachment_Point: left underlay port
-QFX_Right_PI <- Right_Attachment_Point: right underlay port
 
 @enduml
