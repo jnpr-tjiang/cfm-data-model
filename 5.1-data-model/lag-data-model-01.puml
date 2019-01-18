@@ -1,0 +1,51 @@
+@startuml
+
+skinparam object {
+	BackgroundColor PaleGreen
+}
+
+package fabric <<fab_01>> {
+
+    object tor_01 <<physical-router>> {
+    }
+
+    object tor_01_xe_0_0_1 <<physical-interface>> {
+    }
+
+    object tor_02 <<physical-router>> {
+    }
+
+    object tor_02_xe_0_0_1 <<physical-interface>> {
+    }
+
+    object vpg_01<<VirtualPortGroup>> {
+    }
+
+    tor_01 *-- tor_01_xe_0_0_1
+    tor_02 *-- tor_02_xe_0_0_1
+
+    tor_01_xe_0_0_1 <-- vpg_01
+    tor_02_xe_0_0_1 <-- vpg_01
+}
+
+package project <<tenant_project>> {
+    object vn_01 <<virtual-network>> {
+
+    }
+
+    object vmi_01 <<virtual-machine-interface>> {
+       - vlan: 100
+    }
+
+    object vmi_02 <<virtual-machine-interface>> {
+       - vlan: 200
+    }
+
+    vmi_01 --> vn_01
+    vmi_02 --> vn_01
+}
+
+vpg_01 --> vmi_01
+vpg_01 --> vmi_02
+
+@enduml
