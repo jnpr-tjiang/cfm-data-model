@@ -24,7 +24,8 @@ package default-domain {
 package global_system_config {
     
     object SRX<<PhysicalRouter>> {
-        phys_role: PNF
+        rb_roles:
+        \tPNF-ServiceChain@pnf
     }
 
     object SRX_Left_PI<<PhysicalInterface>> {
@@ -40,10 +41,9 @@ package global_system_config {
     }
 
     object QFX<<PhysicalRouter>> {
-        phys_role: spine
         rb_roles:
-            \tcrb-gateway
-            \tservice-attachment
+            \tCRB-MCAST-Gateway@leaf
+            \tPNF-ServiceChain@leaf
     }
 
     object QFX_Left_PI<<PhysicalInterface>> {
@@ -52,19 +52,65 @@ package global_system_config {
     object QFX_Right_PI<<PhysicalInterface>> {
     }
 
-    SRX *-- SRX_Left_PI
-    SRX *-- SRX_Right_PI
+    object Svc_Left_LI<<LogicalInterface>> {
+    }
 
-    QFX --> QFX_Left_PI
-    QFX --> QFX_Right_PI
+    object Svc_Right_LI<<LogicalInterface>> {
+    }
 
-    QFX_Left_PI <--> SRX_Left_PI: Discovered\nunderlay conn
-    QFX_Right_PI <--> SRX_Right_PI: discovered\nunderlay conn
+    object lo0<<PhysicalInterface>> #lightgreen {
+    }
 
+    object lo0.4091<<LogicalInterface>> {
+    }
 
-    PNF_CLUSTER *- PNF
-    SRX_Left_PI <-- PNF: "left\t\t\nunderlay\t\t\nport\t\t"
-    SRX_Right_PI <-- PNF: right\nunderlay\nport
+    object Svc_PIM_IP<<InstanceIP>> {
+        - ip from fabric loopback namespace
+    }
+
+    object Svc_IP_1<<InstanceIP>> {
+        - ip from left svc subnet
+    }
+
+    object Svc_IP_2<<InstanceIP>> {
+        - ip from right svc subnet
+    }
+
+    object Svc_IP_3<<InstanceIP>> {
+        - ip from left svc subnet
+    }
+
+    object Svc_IP_4<<InstanceIP>> {
+        - ip from right svc subnet
+    }
+
+    SRX *-- SRX_Left_PI: has
+    SRX *-- SRX_Right_PI: has
+    SRX *-- lo0: has
+    lo0 *-- lo0.4091
+    lo0.4091 <-- Svc_PIM_IP
+
+    QFX *-- QFX_Left_PI: has
+    QFX *-- QFX_Right_PI: has
+
+    QFX_Left_PI *-- Left_IRB_LI: has
+    QFX_Right_PI *-- Right_IRB_LI: has
+
+    Left_IRB_LI <-- Svc_IP_3
+    Right_IRB_LI <-- Svc_IP_4
+
+    QFX_Left_PI <---> SRX_Left_PI: underlay conn
+    QFX_Right_PI <---> SRX_Right_PI: underlay conn
+
+    SRX_Left_PI *-- Svc_Left_LI: has
+    SRX_Right_PI *-- Svc_Right_LI: has
+
+    Svc_Left_LI <-- Svc_IP_1
+    Svc_Right_LI <-- Svc_IP_2
+
+    PNF_CLUSTER *- PNF: has
+    SRX_Left_PI <---- PNF: "left\t\t\nunderlay\t\t\nport\t\t"
+    SRX_Right_PI <---- PNF: right\nunderlay\nport
 }
 
 package project {
@@ -96,10 +142,12 @@ package project {
     object Sales_LR_Internal_VN<<VirtualNetwork>> {
     }
     
-    object Left_Attachment_Point<<PortTuple>> {
-    }
-    
-    object Right_Attachment_Point<<PortTuple>> {
+    object svc_attachment<<PortTuple>> {
+        - left_vlan: 4090
+        - right_vlan:4091
+        - left_asn: 64511
+        - right_asn: 64512
+        - pnf_asn: 64500
     }
     
     object VMI_1<<VirtualMachineInterface>> {
@@ -128,17 +176,15 @@ package project {
     Sales_LR <-- Post_Sales
     Sales_LR --> Sales_LR_Internal_VN
     
-    FW_Svc_inst --> Left_Attachment_Point: Left
-    FW_Svc_inst --> Right_Attachment_Point: Right 
-    
-    Left_Attachment_Point --> Engineering_LR
-    Right_Attachment_Point --> Sales_LR
+    FW_Svc_inst *-- svc_attachment: has
+    svc_attachment --> Engineering_LR: left LR
+    svc_attachment --> Sales_LR: right LR
 }
 
 
 PNF_CLUSTER <-- Firewall_Svc
 Firewall_Svc <- FW_Svc_inst
-QFX <- Engineering_LR
-QFX <- Sales_LR
+QFX <-- Engineering_LR: extend left tenant\nVRF to border leaf
+QFX <-- Sales_LR: extend right tenant\nVRF to border leaf
 
 @enduml

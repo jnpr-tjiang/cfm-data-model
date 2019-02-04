@@ -55,6 +55,18 @@ activate contrail
     end note
 deactivate contrail
 
+ui -> contrail : create infra networks
+activate contrail
+    contrail -> contrail : create infra\nnetworks
+    activate contrail
+    deactivate contrail
+
+    note right
+    <b>Related objects created in VNC DB</b>
+    <img:images/srv-ztp-data-model-04.png>
+    end note
+deactivate contrail
+
 ui -> contrail : server role assignment job
 activate contrail
     contrail -> contrail : assign server role
@@ -63,7 +75,7 @@ activate contrail
 
     note right
     <b>Related objects created in VNC DB</b>
-    <img:images/srv-ztp-data-model-04.png>
+    <img:images/srv-ztp-data-model-05.png>
     end note
 deactivate contrail
 

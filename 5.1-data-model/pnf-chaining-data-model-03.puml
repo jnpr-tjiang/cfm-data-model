@@ -21,7 +21,8 @@ package default-domain {
 package global_system_config {
 
     object SRX<<PhysicalRouter>> {
-        phys_role: PNF
+        rb_roles:
+        \tPNF-ServiceChain@pnf
     }
 
     object SRX_Left_PI<<PhysicalInterface>> {
@@ -37,10 +38,9 @@ package global_system_config {
     }
 
     object QFX<<PhysicalRouter>> {
-        phys_role: spine
         rb_roles:
-            \tcrb-gateway
-            \tservice-attachment
+            \tCRB-MCAST-Gateway@leaf
+            \tPNF-ServiceChain@leaf
     }
 
     object QFX_Left_PI<<PhysicalInterface>> {
@@ -49,17 +49,17 @@ package global_system_config {
     object QFX_Right_PI<<PhysicalInterface>> {
     }
 
-    SRX *-- SRX_Left_PI
-    SRX *-- SRX_Right_PI
+    SRX *-- SRX_Left_PI: has
+    SRX *-- SRX_Right_PI: has
 
-    QFX --> QFX_Left_PI
-    QFX --> QFX_Right_PI
+    QFX *-- QFX_Left_PI: has
+    QFX *-- QFX_Right_PI: has
 
-    QFX_Left_PI <---> SRX_Left_PI: Discovered\nunderlay conn
-    QFX_Right_PI <---> SRX_Right_PI: discovered\nunderlay conn
+    QFX_Left_PI <---> SRX_Left_PI: underlay conn
+    QFX_Right_PI <---> SRX_Right_PI: underlay conn
 
 
-    PNF_Cluster *- PNF
+    PNF_Cluster *- PNF: has
     SRX_Left_PI <-- PNF: "left\t\t\nunderlay\t\t\nport\t\t"
     SRX_Right_PI <-- PNF: right\nunderlay\nport
 }
@@ -133,8 +133,8 @@ package tenant_project {
 
 PNF_Cluster <-- Firewall_Svc
 Firewall_Svc <-- FW_Svc_inst
-QFX <-- Engineering_LR
-QFX <-- Sales_LR
+QFX <-- Engineering_LR: extend left tenant\nVRF to border leaf
+QFX <-- Sales_LR: extend right tenant\nVRF to border leaf
 QFX_Left_PI <-- Left_Attachment_Point: left underlay port
 QFX_Right_PI <-- Right_Attachment_Point: right underlay port
 

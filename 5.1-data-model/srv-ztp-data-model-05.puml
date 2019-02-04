@@ -82,6 +82,9 @@ object tenant_ipam <<network-ipam>> #lightgreen {
   <b>     dhcp-relay-server: 20.1.1.1
 }
 
+object bond_0 <<port-group>> #lightgreen {
+}
+
 provisioning_nw --> provisioning_ipam
 tenant_nw --> tenant_ipam
 
@@ -97,10 +100,20 @@ eth1 ---* infra_bms_1
 eth2 ---* infra_bms_1
 eth3 ---* infra_bms_1
 
+bond_0 --* infra_bms_1
+eth2 <-- bond_0
+eth3 <-- bond_0
 
 'tenant <- bond_0: \nroles:\n[contrail-controller]
 'eth1 --> provisioning: roles:\n [compute, \ncontrail-controller]\n\n\n
 'eth1 --> tenant : roles:\n[compute]
 
+infra_bms_1 -> np_dell
 
+eth1 -> provisioning
+provisioning <- provisioning_nw
+
+eth2 -> tenant
+eth3 -> tenant
+tenant <- tenant_nw
 @enduml

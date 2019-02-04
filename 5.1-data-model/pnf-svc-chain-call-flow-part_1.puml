@@ -1,0 +1,66 @@
+@startuml
+autonumber "<b>[00]"
+actor admin
+participant WebUI as ui
+participant "CFM" as cfm
+
+note right cfm
+<b>Service chain topology
+<img:images/pnf_svc_chain_topology.png{scale=0.5}>
+end note
+
+admin -> ui : brownfield onboarding
+activate ui
+    ui -> cfm: POST:/execute-job
+    activate cfm
+        cfm -> cfm : brownfield\nonboarding
+        activate cfm
+        deactivate cfm
+    deactivate cfm
+    note right
+    <b>VNC DB: only QFX border leaf and SRX are shown below</b>
+    <img:images/pnf-chaining-data-model-01.png>
+    end note
+deactivate ui
+
+admin -> ui : create tenant networks\n and add them to left\n or right tenant logical\n routers (tenant VRFs)\n and extend the tenant\nVRFs to QFX border leaf
+activate ui
+    ui -> cfm : create tenant virtual networks\n with VMIs for BMS servers
+    activate cfm
+    deactivate cfm
+
+    ui -> cfm : create logical routers (tenant\n VRFs) for outgoing inter-VN\n traffic
+    activate cfm
+    deactivate cfm
+
+    ui -> cfm : extend the logical router\n (tenant VRFs) to QFX\n border leaf
+    activate cfm
+    deactivate cfm
+
+    note right
+    <b>VNC DB: tenant virtual networks and logical routers</b>
+    <img:images/pnf-chaining-data-model-02.png>
+    end note
+deactivate ui
+
+admin -> ui : create service template
+activate ui
+    ui -> cfm : POST:/service-template
+    activate cfm
+    deactivate cfm
+
+    ui -> cfm : POST:/service-appliance-set
+    activate cfm
+    deactivate cfm
+
+    ui -> cfm : POST:/service-appliance\n - physical conns between\n    QFX and SRX
+    activate cfm
+    deactivate cfm
+
+    note right
+    <b>VNC DB: only QFX border leaf and SRX are shown below</b>
+    <img:images/pnf-chaining-data-model-03.png>
+    end note
+deactivate ui
+
+@enduml

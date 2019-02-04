@@ -1,0 +1,22 @@
+@startuml
+autonumber "<b>[12]"
+actor admin
+participant WebUI as ui
+participant "CFM" as cfm
+
+admin -> ui : create service instance
+activate ui
+    ui -> cfm : POST:/service-instance
+    activate cfm
+    deactivate cfm
+
+    ui -> cfm : POST:/port-tuple\n - left_vlan, right_vlan\n - left_asn, right_asn\n - pnf_asn
+    activate cfm
+    deactivate cfm
+
+    note right
+    <b>VNC DB: only QFX border leaf and SRX are shown below</b>
+    <img:images/pnf-chaining-data-model-04.png>
+    end note
+deactivate ui
+@enduml
